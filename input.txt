@@ -2,5 +2,9 @@
 <head>
 </head>
 <body>
+<a name="img"></a>
+<a href="http://www.mff.cuni.cz" title='MFF'></a>
+<a href="#img"><font size='1'></font></a>
+<font size='2'></font>
 </body>
 </html>

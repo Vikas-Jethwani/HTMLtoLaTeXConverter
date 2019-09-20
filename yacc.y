@@ -13,43 +13,53 @@
     char *s;
 }
 
-%token      HTML  HTML_C  HEAD  HEAD_C  BODY  BODY_C
+%token      HTML_S      HTML_E      HEAD_S      HEAD_E      BODY_S      BODY_E
+%token  <s>    A_S         A_E         FONT_S      FONT_E
 %start      begin
 %type       <s>       Document
 %type       <s>       html
 %type       <s>       head
 %type       <s>       body
+%type       <s>       body_content
+
+
 
 
 %%
 begin               :   Document
 
-Document            :   HTML html HTML_C                { printf("Grammar mein jod diya\t%s", $2); }
-                        ;
+Document            :   HTML_S html HTML_E                { printf("Grammar mein jod diya\t%s", $2); }
+                    |   ;
 
 html                :   head body                       { char *temp = malloc(100);
                                                           strcpy(temp, $1);
                                                           strcat(temp, $2);
                                                           $$ = temp; }
 
-                      | head                            { char *temp = malloc(100);
+                    |   head                            { char *temp = malloc(100);
                                                           strcpy(temp, $1);
                                                           $$ = temp; }
 
-                      | body                            { char *temp = malloc(100);
+                    |   body                            { char *temp = malloc(100);
                                                           strcpy(temp, $1);
                                                           $$ = temp; }
-                        ;
+                    |   ;
 
-head                :   HEAD HEAD_C                     { char *temp = malloc(100);
+head                :   HEAD_S HEAD_E                     { char *temp = malloc(100);
                                                           strcpy(temp, "\nfrom head\n");
                                                           $$ = temp; }
-                        ;
+                    |   ;
 
-body                :   BODY BODY_C                     { char *temp = malloc(100);
-                                                          strcpy(temp, "\nfrom body\n");
-                                                          $$ = temp; }
-                        ;
+body                :   BODY_S body_content BODY_E          { char *temp = malloc(100);
+                                                              strcpy(temp, "\nfrom body\n");
+                                                              $$ = temp; }
+                    |   ;
+
+body_content        :   body_content A_S body_content A_E               { printf("inside a stuff %s\n", $2); }
+
+                    |   body_content FONT_S body_content FONT_E         { printf("inside font stuff %s\n", $2); }
+
+                    |   ;
 
 %%
 
