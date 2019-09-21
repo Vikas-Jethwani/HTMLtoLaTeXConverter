@@ -6,12 +6,10 @@ Steps to run:
 (./a.out input.txt   for linux)
 
 About : 
-1. Extension of version 1
-2. Extracting attributes (via naive for loop)
-3. Passing attributes to yacc
+1. Start states Concept for Attributes Extraction(Efficient)
+2. Switched to C++
 
 ==== TODO List for Future Me ==== :
-1. Begin start state concept for attributes
-2. Write better Grammar
-3. Extend nesting of tags
-4. Make case to handle unknown attributes
+1. Write better Grammar
+2. Extend nesting of tags
+3. Make case to handle unknown attributes

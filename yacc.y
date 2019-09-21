@@ -2,6 +2,8 @@
     #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
+    #include <iostream>
+    using namespace std;
     void yyerror(const char *);
     FILE *fileout;
     FILE *yyin;
@@ -10,7 +12,7 @@
 %}
 
 %union{
-    char *s;
+    string s;
 }
 
 %token      HTML_S      HTML_E      HEAD_S      HEAD_E      BODY_S      BODY_E
