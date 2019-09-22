@@ -1,9 +1,10 @@
 Steps to run:
 1. bison -d yacc.y
 2. flex lex.l
-3. gcc yacc.tab.c lex.yy.c
+3. g++ yacc.tab.c lex.yy.c
 4. a.exe input.html
 (./a.out input.html   for linux)
+(sh run.sh            for linux)
 
 About : 
 1. Better Grammar (CFG with 0 Conflicts)
