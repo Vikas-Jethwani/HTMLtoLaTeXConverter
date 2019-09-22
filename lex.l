@@ -1,136 +1,292 @@
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
     #include <iostream>
-    using namespace std;
+    #include <cstring>
     #include "yacc.tab.h"
+    using namespace std;
     void yyerror(const char *);
 %}
 %option yylineno
-spac             [ ]+
-punc             (\.|\,|\!|\?%-)
-word             ({punc}|[a-zA-Z0-9])+
-number           [0-9]+
 
-%x A_TAG
-%x FONT_TAG
-%x IMG_TAG
+%x A_ATTR
+%x FONT_ATTR
+%x IMG_ATTR
+
+link        [a-zA-Z0-9#\.:/]
 
 %%
 "<html>"                {
-                            printf("HTML Tag\n");
+                            cout<<"HTML Tag\n";
                             return HTML_S;
                         }
-
 "</html>"               {
-                            printf("HTML_E Tag\n");
+                            cout<<"\nHTML_E Tag\n";
                             return HTML_E;
                         }
 
 "<head>"                {
-                            printf("HEAD Tag\n");
+                            cout<<"\nHEAD Tag\n";
                             return HEAD_S;
                         }
-
 "</head>"               {
-                            printf("HEAD_E Tag\n");
+                            cout<<"HEAD_E Tag\n";
                             return HEAD_E;
+                        }
+                        
+"<title>"               {
+                            cout<<"TITLE Tag\n";
+                            return TITLE_S;
+                        }
+"</title>"              {
+                            cout<<"TITLE_E Tag\n";
+                            return TITLE_E;
                         }
 
 "<body>"                {
-                            printf("BODY Tag\n");
+                            cout<<"\nBODY Tag\n";
                             return BODY_S;
                         }
-
 "</body>"               {
-                            printf("BODY_E Tag\n");
+                            cout<<"BODY_E Tag\n";
                             return BODY_E;
                         }
 
-"<a "                   {
-                            printf("A Tag\n");
-                            BEGIN(A_TAG);
-                            //return A_S;
+"<a "|"<a"                   {
+                            cout<<"A Tag\n";
+                            BEGIN(A_ATTR);
+                            return A_S;
                         }
 
-<A_TAG>"href=\""[a-zA-Z0-9#]*"\""    {
-                                int n = strlen(yytext);
-                                string str = string(yytext);
-                                yylval.s = str.substr(5,n);
-                                cout<<yylval.s<<endl;
-                                
-                                //return A_HREF;
-                            }
+<A_ATTR>"href=\""[a-zA-Z0-9#\.:/]*"\""      {
+                                                int n = strlen(yytext);
+                                                string str = string(yytext).substr(5,n);
+                                                n = str.length();
+                                                yylval.s = new char [n+1];
+                                                strcpy(yylval.s, str.c_str());
+                                                yylval.s[n] = '\0';
+                                                cout<<"attr, href : "<<yylval.s<<endl;
+                                                return A_HREF;
+                                             }
 
+<A_ATTR>"name=\""[a-zA-Z0-9#]*"\""          {
+                                                int n = strlen(yytext);
+                                                string str = string(yytext).substr(5,n);
+                                                n = str.length();
+                                                yylval.s = new char [n+1];
+                                                strcpy(yylval.s, str.c_str());
+                                                yylval.s[n] = '\0';
+                                                cout<<"attr, name : "<<yylval.s<<endl;
+                                                return A_NAME;
+                                             }
+                                             
+<A_ATTR>"title=\""[a-zA-Z0-9#\.:/]*"\""      {
+                                                int n = strlen(yytext);
+                                                string str = string(yytext).substr(6,n);
+                                                n = str.length();
+                                                yylval.s = new char [n+1];
+                                                strcpy(yylval.s, str.c_str());
+                                                yylval.s[n] = '\0';
+                                                cout<<"attr, title : "<<yylval.s<<endl;
+                                                return A_TITLE;
+                                             }
+                                             
+<A_ATTR>" "             ;
+                                                                                              
+<A_ATTR>">"             {
+                            BEGIN(INITIAL);
+                        }
 
 "</a>"                  {
-                            printf("A_E Tag\n");
-                            BEGIN(INITIAL);
-                            //return A_E;
+                            cout<<"A_E Tag\n";
+                            return A_E;
                         }
-
-"<font "[^>]+">"        {
-                            printf("FONT Tag\n");
-                            int n = strlen(yytext);
-                            char *tag_details = yytext; int i=1;
-                            char *attr = malloc(200); int a=0;
-                            int still_tag=1, attr_open=0;
-
-                            for(; i<n-1; i++)
-                            {
-                                if(tag_details[i] == '\'')
-                                    tag_details[i] = '\"';
-                                
-                                if(tag_details[i] == ' ')
-                                {
-                                    still_tag = 0;
-                                    continue;
-                                }
-                                if(still_tag)
-                                    continue;
-
-                                // src
-                                if(!attr_open && (tag_details[i] == 's' || tag_details[i] == 'S'))
-                                {
-                                    attr[a++]='s'; attr[a++]='\"';
-                                    attr_open = 1;
-                                    i += 5; // manually skipping over ' ize=" '
-                                    continue;
-                                }
-                                else
-                                {
-                                    ;// MAKE CASE TO HANDLE UNKNOWN ATTRIBUTES
-                                }
-
-                                // attribute value ends
-                                if(attr_open && tag_details[i] == '\"')
-                                {
-                                    attr[a++] = '\"';
-                                    attr_open = 0;
-                                    continue;
-                                }
-                                // Actual attribute value
-                                attr[a++] = tag_details[i];
-                            }
-                            attr[a] = '\0';
-
-                            //printf("Attr : %s\n", attr);
-                            yylval.s = malloc(sizeof(attr));
-                            strcpy(yylval.s, attr);
+                        
+"<font "|"<font"         {
+                            cout<<"FONT Tag\n";
+                            BEGIN(FONT_ATTR);
                             return FONT_S;
                         }
 
-"</font>"               {
-                            printf("FONT_E Tag\n");
+<FONT_ATTR>"size=\""[0-9]+"\""      {
+                                                int n = strlen(yytext);
+                                                string str = string(yytext).substr(5,n);
+                                                n = str.length();
+                                                yylval.s = new char [n+1];
+                                                strcpy(yylval.s, str.c_str());
+                                                yylval.s[n] = '\0';
+                                                cout<<"font-attr, size : "<<yylval.s<<endl;
+                                                return FONT_SIZE;
+                                             }
+                                             
+<FONT_ATTR>" "              ;
+                                                                                              
+<FONT_ATTR>">"              {
+                                BEGIN(INITIAL);
+                            }
+
+"</font>"                   {
+                            cout<<"FONT_E Tag\n";
                             return FONT_E;
+                            }
+                            
+"<p>"                   {
+                            cout<<"P Tag\n";
+                            return P_S;
+                        }
+"</p>"                  {
+                            cout<<"P_E Tag\n";
+                            return P_E;
                         }
 
-.                       ; // printf("%s\n",  yytext);
-\n                      ;
+"<center>"              {
+                            cout<<"CENTER Tag\n";
+                            return CENTER_S;
+                        }
+"</center>"             {
+                            cout<<"CENTER_E Tag\n";
+                            return CENTER_E;
+                        }
+                        
+"<div>"                 {
+                            cout<<"DIV Tag\n";
+                            return DIV_S;
+                        }
+"</div>"                {
+                            cout<<"DIV_E Tag\n";
+                            return DIV_E;
+                        }
+
+"<h1>"                  {
+                            cout<<"H1 Tag\n";
+                            return H1_S;
+                        }
+"</h1>"                 {
+                            cout<<"H1_E Tag\n";
+                            return H1_E;
+                        }
+                        
+"<h2>"                  {
+                            cout<<"H2 Tag\n";
+                            return H2_S;
+                        }
+"</h2>"                 {
+                            cout<<"H2_E Tag\n";
+                            return H2_E;
+                        }
+                        
+"<h3>"                  {
+                            cout<<"H3 Tag\n";
+                            return H3_S;
+                        }
+"</h3>"                 {
+                            cout<<"H3_E Tag\n";
+                            return H3_E;
+                        }
+
+"<h4>"                  {
+                            cout<<"H4 Tag\n";
+                            return H4_S;
+                        }
+"</h4>"                 {
+                            cout<<"H4_E Tag\n";
+                            return H4_E;
+                        }
+
+"<h5>"                  {
+                            cout<<"H5 Tag\n";
+                            return H5_S;
+                        }
+"</h5>"                 {
+                            cout<<"H5_E Tag\n";
+                            return H5_E;
+                        }
+                        
+"<h6>"                  {
+                            cout<<"H6 Tag\n";
+                            return H6_S;
+                        }
+"</h6>"                 {
+                            cout<<"H6_E Tag\n";
+                            return H6_E;
+                        }
+                        
+"<u>"                   {
+                            cout<<"U Tag\n";
+                            return U_S;
+                        }
+"</u>"                  {
+                            cout<<"U_E Tag\n";
+                            return U_E;
+                        }
+                        
+"<b>"                   {
+                            cout<<"B Tag\n";
+                            return BOLD_S;
+                        }
+"</b>"                  {
+                            cout<<"B_E Tag\n";
+                            return BOLD_E;
+                        }
+                        
+"<strong>"              {
+                            cout<<"STRONG Tag\n";
+                            return BOLD_S;
+                        }
+"</strong>"             {
+                            cout<<"STRONG_E Tag\n";
+                            return BOLD_E;
+                        }
+                        
+"<tt>"                  {
+                            cout<<"TT Tag\n";
+                            return TT_S;
+                        }
+"</tt>"                 {
+                            cout<<"TT_E Tag\n";
+                            return TT_E;
+                        }
+                        
+"<i>"                   {
+                            cout<<"I Tag\n";
+                            return I_S;
+                        }
+"</i>"                  {
+                            cout<<"I_E Tag\n";
+                            return I_E;
+                        }
+                        
+"<em>"                  {
+                            cout<<"EM Tag\n";
+                            return EM_S;
+                        }
+"</em>"                 {
+                            cout<<"EM_E Tag\n";
+                            return EM_E;
+                        }
+                        
+                        
+"<small>"               {
+                            cout<<"SMALL Tag\n";
+                            return SMALL_S;
+                        }
+"</small>"              {
+                            cout<<"SMALL_E Tag\n";
+                            return SMALL_E;
+                        }
+
+                       
+([a-zA-Z0-9\.,'; \t]+[\n]*)+         {
+                            int n = strlen(yytext);
+                            yylval.s = new char [n+1];
+                            strcpy(yylval.s, yytext);
+                            yylval.s[n] = '\0';
+                            return DATA;
+                        }
+.                       ;
+[ \t\n]+                ;
 %%
+
 void yyerror(const char *str) {
-    fprintf(stderr,"Error | Line: %d\n%s\n", yylineno, str);
+    cerr<<"Line No: "<<yylineno<<"\t Error: "<<str<<endl;
 }
 
 int yywrap(void) {

@@ -2,14 +2,16 @@ Steps to run:
 1. bison -d yacc.y
 2. flex lex.l
 3. gcc yacc.tab.c lex.yy.c
-4. a.exe input.txt
-(./a.out input.txt   for linux)
+4. a.exe input.html
+(./a.out input.html   for linux)
 
 About : 
-1. Start states Concept for Attributes Extraction(Efficient)
-2. Switched to C++
+1. Better Grammar (CFG with 0 Conflicts)
+2. Extended nesting of tags
+3. Switched to Linux here.
 
 ==== TODO List for Future Me ==== :
-1. Write better Grammar
-2. Extend nesting of tags
-3. Make case to handle unknown attributes
+1. Handle ''
+2. Handle case insensitive HTML tags
+3. This is not working
+    <a href="some.link" name="killer"> <b>bold</b> </a>
