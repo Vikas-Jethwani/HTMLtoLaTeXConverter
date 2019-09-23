@@ -93,6 +93,8 @@ link        [a-zA-Z0-9#\.:/]
                                                                                               
 <A_ATTR>">"             {
                             BEGIN(INITIAL);
+                            cout<<"A_ATTR_E Tag\n";
+                            return A_ATTR_E;
                         }
 
 "</a>"                  {
@@ -121,6 +123,8 @@ link        [a-zA-Z0-9#\.:/]
                                                                                               
 <FONT_ATTR>">"              {
                                 BEGIN(INITIAL);
+                                cout<<"FONT_ATTR_E Tag\n";
+                                return FONT_ATTR_E;
                             }
 
 "</font>"                   {
@@ -273,8 +277,83 @@ link        [a-zA-Z0-9#\.:/]
                             return SMALL_E;
                         }
 
-                       
-([a-zA-Z0-9\.,'; \t]+[\n]*)+         {
+"<sub>"                 {
+                            cout<<"SUB Tag\n";
+                            return SUB_S;
+                        }
+"</sub>"                {
+                            cout<<"SUB_E Tag\n";
+                            return SUB_E;
+                        }
+
+"<sup>"                 {
+                            cout<<"SUP Tag\n";
+                            return SUP_E;
+                        }
+"</sup>"                {
+                            cout<<"SUP_E Tag\n";
+                            return SUP_E;
+                        }
+
+                        
+"<ul>"                  {
+                            cout<<"UL Tag\n";
+                            return UL_S;
+                        }
+"</ul>"                 {
+                            cout<<"UL_E Tag\n";
+                            return UL_E;
+                        }
+                        
+"<ol>"                  {
+                            cout<<"OL Tag\n";
+                            return OL_S;
+                        }
+"</ol>"                 {
+                            cout<<"OL_E Tag\n";
+                            return OL_E;
+                        }
+
+"<li>"                  {
+                            cout<<"LI Tag\n";
+                            return LI_S;
+                        }
+"</li>"                 {
+                            cout<<"LI_E Tag\n";
+                            return LI_E;
+                        }
+
+"<dl>"                  {
+                            cout<<"DL Tag\n";
+                            return DL_S;
+                        }
+"</dl>"                 {
+                            cout<<"DL_E Tag\n";
+                            return DL_E;
+                        }
+
+"<dt>"                  {
+                            cout<<"DT Tag\n";
+                            return DT_S;
+                        }
+"</dt>"                 {
+                            cout<<"DT_E Tag\n";
+                            return DT_E;
+                        }
+
+"<dd>"                  {
+                            cout<<"DD Tag\n";
+                            return DD_S;
+                        }
+"</dd>"                 {
+                            cout<<"DD_E Tag\n";
+                            return DD_E;
+                        }
+[ \t\n]+                {
+                            cout<<"Trimmed"<<endl;
+                        }
+                      
+([a-zA-Z0-9\.,'; \t?]+[\n]*)+         {
                             int n = strlen(yytext);
                             yylval.s = new char [n+1];
                             strcpy(yylval.s, yytext);
@@ -282,7 +361,6 @@ link        [a-zA-Z0-9#\.:/]
                             return DATA;
                         }
 .                       ;
-[ \t\n]+                ;
 %%
 
 void yyerror(const char *str) {

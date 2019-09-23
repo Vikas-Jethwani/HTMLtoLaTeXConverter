@@ -7,12 +7,12 @@ Steps to run:
 (sh run.sh            for linux)
 
 About : 
-1. Better Grammar (CFG with 0 Conflicts)
-2. Extended nesting of tags
-3. Switched to Linux here.
+1. Handled OL, UL, LI tags
+2. Handled DL, DT, DD tags
+3. This works now :
+    <a href="some.link" name="killer"> how <b>you</b> doing? </a>
 
 ==== TODO List for Future Me ==== :
 1. Handle ''
 2. Handle case insensitive HTML tags
-3. This is not working
-    <a href="some.link" name="killer"> <b>bold</b> </a>
+3. Handle img tag

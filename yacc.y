@@ -17,12 +17,15 @@
 %token      HTML_S      HTML_E      HEAD_S      HEAD_E      BODY_S      BODY_E
 %token      TITLE_S     TITLE_E
 %token      <s>         A_S         A_E         FONT_S      FONT_E      IMG_S       IMG_E
-%token		A_HREF      A_NAME      A_TITLE     FONT_SIZE
+%token		A_HREF      A_NAME      A_TITLE     A_ATTR_E    FONT_SIZE   FONT_ATTR_E
 %token      P_S         P_E         CENTER_S    CENTER_E    DIV_S       DIV_E
 %token      H1_S        H1_E        H2_S        H2_E        H3_S        H3_E
 %token      H4_S        H4_E        H5_S        H5_E        H6_S        H6_E
 %token      U_S         U_E         BOLD_S      BOLD_E      TT_S        TT_E
 %token      I_S         I_E         EM_S        EM_E        SMALL_S     SMALL_E
+%token      SUB_S       SUB_E       SUP_S       SUP_E
+%token      UL_S        UL_E        OL_S        OL_E        LI_S        LI_E
+%token      DL_S        DL_E        DT_S        DT_E        DD_S        DD_E
 %token      <s>         DATA
 %start      begin
 
@@ -33,6 +36,7 @@
 %type       <s>       body_content
 %type       <s>       a_content
 %type       <s>       font_content
+%type       <s>       list_content
 %type       <s>       data
 
 
@@ -45,7 +49,7 @@
                     *******************************************/
 begin               :   Document
 
-Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya:\t%s\n", $2); }
+Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya.\n"); }
                     |                                       {;}
 
 html                :   head body                           {
@@ -144,34 +148,74 @@ body_content        :   body_content SMALL_S body_content SMALL_E data  {
                                                                             ;
                                                                         }
 
-body_content        :   body_content A_S a_content A_E data         {
+body_content        :   body_content A_S a_content A_ATTR_E body_content A_E data         {
                                                                         ;
                                                                     }
 
-a_content           :   A_HREF a_content                            {
+a_content           :   a_content A_HREF                            {
                                                                         ;
                                                                     }
-                    |   A_NAME a_content                            {
+                    |   a_content A_NAME                            {
                                                                         ;
                                                                     }
-                    |   A_TITLE a_content                           {
+                    |   a_content A_TITLE                           {
                                                                         ;
                                                                     }
-                    |   data                                        {;}
+                    |                                               {;}
 
 
-body_content        :   body_content FONT_S font_content FONT_E data    {
+body_content        :   body_content FONT_S font_content FONT_ATTR_E body_content FONT_E data    {
                                                                             ;
                                                                         }
                                                                         
-font_content        :   FONT_SIZE font_content                      {
+font_content        :   font_content FONT_SIZE                      {
                                                                         ;
                                                                     }
-                    |   data                                        {;}
+                    |                                               {;}
 
-body_content        :   body_content IMG_S body_content IMG_E data  {
+
+body_content        :   body_content UL_S list_content UL_E         {
                                                                         ;
-                                                                    }  
+                                                                    }
+                                                                    
+                    |   body_content OL_S list_content OL_E         {
+                                                                        ;
+                                                                    }
+
+
+list_content        :   list_content OL_S list_content OL_E         {
+                                                                        ;
+                                                                    }
+                    |   list_content UL_S list_content UL_E         {
+                                                                        ;
+                                                                    }
+                    |   list_content list                           {
+                                                                        ;
+                                                                    }
+                    |   list                                        {
+                                                                        ;
+                                                                    }                                    
+// Can't be empty ..                                     
+list                :   LI_S body_content LI_E                      {
+                                                                        ;
+                                                                    }
+
+
+body_content        :   body_content DL_S dict_content DL_E         {
+                                                                        ;
+                                                                    }
+
+
+dict_content        :   dict_content term                           {
+                                                                        ;
+                                                                    }
+                    |   term                                        {
+                                                                        ;
+                                                                    }                                    
+// Can't be empty ..                                     
+term                :   DT_S body_content DT_E DD_S body_content DD_E   {
+                                                                            ;
+                                                                        }
 
 
 
