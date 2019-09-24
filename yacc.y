@@ -18,6 +18,8 @@
 %token      TITLE_S     TITLE_E
 %token      <s>         A_S         A_E         FONT_S      FONT_E      IMG_S       IMG_E
 %token		A_HREF      A_NAME      A_TITLE     A_ATTR_E    FONT_SIZE   FONT_ATTR_E
+%token      TABLE_S     TABLE_E     TAB_BORDER  TAB_ATTR_E  CAPTION_S   CAPTION_E
+%token      TR_S        TR_E        TH_S        TH_E        TD_S        TD_E
 %token      P_S         P_E         CENTER_S    CENTER_E    DIV_S       DIV_E
 %token      H1_S        H1_E        H2_S        H2_E        H3_S        H3_E
 %token      H4_S        H4_E        H5_S        H5_E        H6_S        H6_E
@@ -34,10 +36,12 @@
 %type       <s>       head
 %type       <s>       body
 %type       <s>       body_content
-%type       <s>       a_content
-%type       <s>       font_content
+%type       <s>       a_attributes
+%type       <s>       font_attributes
+%type       <s>       table_attributes
 %type       <s>       list_content
 %type       <s>       data
+
 
 
 
@@ -49,7 +53,7 @@
                     *******************************************/
 begin               :   Document
 
-Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya.\n"); }
+Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya:\t%s\n", $2); }
                     |                                       {;}
 
 html                :   head body                           {
@@ -147,32 +151,78 @@ body_content        :   body_content TT_S body_content TT_E data    {
 body_content        :   body_content SMALL_S body_content SMALL_E data  {
                                                                             ;
                                                                         }
-
-body_content        :   body_content A_S a_content A_ATTR_E body_content A_E data         {
+ 
+body_content        :   body_content SUB_S body_content SUB_E data  {
+                                                                        ;
+                                                                    }
+                                                                    
+body_content        :   body_content SUP_S body_content SUP_E data  {
                                                                         ;
                                                                     }
 
-a_content           :   a_content A_HREF                            {
+
+body_content        :   body_content A_S a_attributes A_ATTR_E body_content A_E data         {
                                                                         ;
                                                                     }
-                    |   a_content A_NAME                            {
+
+a_attributes        :   a_attributes A_HREF                         {
                                                                         ;
                                                                     }
-                    |   a_content A_TITLE                           {
+                    |   a_attributes A_NAME                         {
+                                                                        ;
+                                                                    }
+                    |   a_attributes A_TITLE                        {
                                                                         ;
                                                                     }
                     |                                               {;}
 
 
-body_content        :   body_content FONT_S font_content FONT_ATTR_E body_content FONT_E data    {
+body_content        :   body_content FONT_S font_attributes FONT_ATTR_E body_content FONT_E data    {
                                                                             ;
                                                                         }
                                                                         
-font_content        :   font_content FONT_SIZE                      {
+font_attributes     :   FONT_SIZE                                   {
                                                                         ;
                                                                     }
                     |                                               {;}
 
+
+
+body_content        :   body_content TABLE_S table_attributes TAB_ATTR_E table_content TABLE_E data    {
+                                                                        ;
+                                                                    }
+
+table_attributes    :   TAB_BORDER                                  {
+                                                                        ;
+                                                                    }
+                    |                                               {;}
+                    
+table_content       :   caption first_row rest_rows                 {
+                                                                        ;
+                                                                    }
+                    |   caption first_row                           {;}
+                    |   caption rest_rows                           {;}                               
+                    |   caption                                     {;}
+
+
+caption             :   CAPTION_S body_content CAPTION_E            {;}
+                    |                                               {;}
+
+first_row           :   TR_S first_row_data TR_E                    {;}
+
+
+first_row_data      :   first_row_data TH_S body_content TH_E       {;}
+                    |   TH_S body_content TH_E                      {;}
+
+
+rest_rows           :   rest_rows TR_S else_row_data TR_E           {;}
+                    |   TR_S else_row_data TR_E                     {;}
+
+else_row_data       :   else_row_data TD_S body_content TD_E        {;}
+                    |                                               {;}
+                    
+                    
+                    
 
 body_content        :   body_content UL_S list_content UL_E         {
                                                                         ;
@@ -219,12 +269,13 @@ term                :   DT_S body_content DT_E DD_S body_content DD_E   {
 
 
 
+
 body_content        :   data                                {
                                                                 //cout<<"\tData: "<<$1<<endl;
                                                                 //delete yylval.s;
                                                             }
 
-data                : DATA                                  {
+data                :   DATA                                {
                                                                 cout<<"\tData: "<<$1<<endl;
                                                                 delete yylval.s;
                                                             }

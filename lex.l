@@ -6,10 +6,12 @@
     void yyerror(const char *);
 %}
 %option yylineno
+%option caseless
 
 %x A_ATTR
 %x FONT_ATTR
 %x IMG_ATTR
+%x TAB_ATTR
 
 link        [a-zA-Z0-9#\.:/]
 
@@ -102,7 +104,7 @@ link        [a-zA-Z0-9#\.:/]
                             return A_E;
                         }
                         
-"<font "|"<font"         {
+"<font "|"<font"        {
                             cout<<"FONT Tag\n";
                             BEGIN(FONT_ATTR);
                             return FONT_S;
@@ -121,16 +123,85 @@ link        [a-zA-Z0-9#\.:/]
                                              
 <FONT_ATTR>" "              ;
                                                                                               
-<FONT_ATTR>">"              {
-                                BEGIN(INITIAL);
-                                cout<<"FONT_ATTR_E Tag\n";
-                                return FONT_ATTR_E;
-                            }
+<FONT_ATTR>">"          {
+                            BEGIN(INITIAL);
+                            cout<<"FONT_ATTR_E Tag\n";
+                            return FONT_ATTR_E;
+                        }
 
-"</font>"                   {
+"</font>"               {
                             cout<<"FONT_E Tag\n";
                             return FONT_E;
-                            }
+                        }
+
+
+"<table "|"<table"      {
+                            cout<<"TABLE Tag\n";
+                            BEGIN(TAB_ATTR);
+                            return TABLE_S;
+                        }
+
+<TAB_ATTR>"border=\""[0-9]+"\""     {
+                                        int n = strlen(yytext);
+                                        string str = string(yytext).substr(7,n);
+                                        n = str.length();
+                                        yylval.s = new char [n+1];
+                                        strcpy(yylval.s, str.c_str());
+                                        yylval.s[n] = '\0';
+                                        cout<<"table-attr, border : "<<yylval.s<<endl;
+                                        return TAB_BORDER;
+                                    }
+                                             
+<TAB_ATTR>" "           ;
+
+<TAB_ATTR>">"           {
+                            BEGIN(INITIAL);
+                            cout<<"TAB_ATTR_E Tag\n";
+                            return TAB_ATTR_E;
+                        }
+                        
+"</table>"              {
+                            cout<<"TABLE_E Tag\n";
+                            return TABLE_E;
+                        }
+                        
+
+"<caption>"             {
+                            cout<<"CAPTION Tag\n";
+                            return CAPTION_S;
+                        }
+"</caption>"            {
+                            cout<<"CAPTION_E Tag\n";
+                            return CAPTION_E;
+                        }
+                        
+"<tr>"                  {
+                            cout<<"TR Tag\n";
+                            return TR_S;
+                        }
+"</tr>"                 {
+                            cout<<"TR_E Tag\n";
+                            return TR_E;
+                        }
+                        
+"<th>"                  {
+                            cout<<"TH Tag\n";
+                            return TH_S;
+                        }
+"</th>"                 {
+                            cout<<"TH_E Tag\n";
+                            return TH_E;
+                        }
+                        
+"<td>"                  {
+                            cout<<"TD Tag\n";
+                            return TD_S;
+                        }
+"</td>"                 {
+                            cout<<"TD_E Tag\n";
+                            return TD_E;
+                        }               
+
                             
 "<p>"                   {
                             cout<<"P Tag\n";
@@ -288,7 +359,7 @@ link        [a-zA-Z0-9#\.:/]
 
 "<sup>"                 {
                             cout<<"SUP Tag\n";
-                            return SUP_E;
+                            return SUP_S;
                         }
 "</sup>"                {
                             cout<<"SUP_E Tag\n";
@@ -353,7 +424,7 @@ link        [a-zA-Z0-9#\.:/]
                             cout<<"Trimmed"<<endl;
                         }
                       
-([a-zA-Z0-9\.,'; \t?]+[\n]*)+         {
+([a-zA-Z0-9\.,'; \t?=]+[\n]*)+         {
                             int n = strlen(yytext);
                             yylval.s = new char [n+1];
                             strcpy(yylval.s, yytext);

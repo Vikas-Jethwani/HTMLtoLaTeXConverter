@@ -7,12 +7,11 @@ Steps to run:
 (sh run.sh            for linux)
 
 About : 
-1. Handled OL, UL, LI tags
-2. Handled DL, DT, DD tags
-3. This works now :
-    <a href="some.link" name="killer"> how <b>you</b> doing? </a>
+1. Handled Table border - LEX
+2. New Productions for Table Grammar - YACC
+3. Handled Case Insensitive nature of HTML Tags
 
 ==== TODO List for Future Me ==== :
 1. Handle ''
-2. Handle case insensitive HTML tags
-3. Handle img tag
+2. Handle img tag
+3. Handle comments, meta, br
