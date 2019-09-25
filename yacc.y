@@ -18,6 +18,7 @@
 %token      TITLE_S     TITLE_E
 %token      <s>         A_S         A_E         FONT_S      FONT_E      IMG_S       IMG_E
 %token		A_HREF      A_NAME      A_TITLE     A_ATTR_E    FONT_SIZE   FONT_ATTR_E
+%token      IMG_SRC     IMG_WIDTH   IMG_HEIGHT
 %token      TABLE_S     TABLE_E     TAB_BORDER  TAB_ATTR_E  CAPTION_S   CAPTION_E
 %token      TR_S        TR_E        TH_S        TH_E        TD_S        TD_E
 %token      P_S         P_E         CENTER_S    CENTER_E    DIV_S       DIV_E
@@ -28,6 +29,7 @@
 %token      SUB_S       SUB_E       SUP_S       SUP_E
 %token      UL_S        UL_E        OL_S        OL_E        LI_S        LI_E
 %token      DL_S        DL_E        DT_S        DT_E        DD_S        DD_E
+%token      BR_S
 %token      <s>         DATA
 %start      begin
 
@@ -49,7 +51,9 @@
 
 %%
                     /*******************************************
+                    ********************************************
                                     BASIC OUTLINE
+                    ********************************************
                     *******************************************/
 begin               :   Document
 
@@ -64,7 +68,9 @@ html                :   head body                           {
                                                             }
                                                             
                     /*******************************************
+                    ********************************************
                                     HEAD SECTION
+                    ********************************************
                     *******************************************/
 
 head                :   HEAD_S head_content HEAD_E          {
@@ -81,7 +87,9 @@ head_content        :   TITLE_S data TITLE_E                {
                     |                                       {;}
 
                     /*******************************************
+                    ********************************************
                                     BODY SECTION
+                    ********************************************
                     *******************************************/
                     
 body                :   BODY_S body_content BODY_E          {
@@ -92,6 +100,9 @@ body                :   BODY_S body_content BODY_E          {
                     |                                       {;}
                     
 
+                    /*******************************************
+                                    Common Tags
+                    *******************************************/
 body_content        :   body_content P_S body_content P_E data      {
                                                                         ;
                                                                     }
@@ -160,6 +171,14 @@ body_content        :   body_content SUP_S body_content SUP_E data  {
                                                                         ;
                                                                     }
 
+body_content        :   body_content BR_S data                      {
+                                                                        ;
+                                                                    }
+                                                                    
+
+                    /*******************************************
+                                    Anchor Tag
+                    *******************************************/
 
 body_content        :   body_content A_S a_attributes A_ATTR_E body_content A_E data         {
                                                                         ;
@@ -176,7 +195,9 @@ a_attributes        :   a_attributes A_HREF                         {
                                                                     }
                     |                                               {;}
 
-
+                    /*******************************************
+                                    Font Tag
+                    *******************************************/
 body_content        :   body_content FONT_S font_attributes FONT_ATTR_E body_content FONT_E data    {
                                                                             ;
                                                                         }
@@ -186,11 +207,32 @@ font_attributes     :   FONT_SIZE                                   {
                                                                     }
                     |                                               {;}
 
+                    /*******************************************
+                                    Image Tag
+                    *******************************************/
+body_content        :   body_content IMG_S img_attributes IMG_E data  {
+                                                                        ;
+                                                                    }
+
+img_attributes      :   img_attributes IMG_SRC                      {
+                                                                        ;
+                                                                    }
+                    |   img_attributes IMG_WIDTH                    {
+                                                                        ;
+                                                                    }
+                    |   img_attributes IMG_HEIGHT                   {
+                                                                        ;
+                                                                    }
+                    |                                               {;}
 
 
+                    /*******************************************
+                                    Table Tag
+                    *******************************************/
 body_content        :   body_content TABLE_S table_attributes TAB_ATTR_E table_content TABLE_E data    {
                                                                         ;
                                                                     }
+
 
 table_attributes    :   TAB_BORDER                                  {
                                                                         ;
@@ -222,7 +264,9 @@ else_row_data       :   else_row_data TD_S body_content TD_E        {;}
                     |                                               {;}
                     
                     
-                    
+                    /*******************************************
+                                    List Tags
+                    *******************************************/
 
 body_content        :   body_content UL_S list_content UL_E         {
                                                                         ;
@@ -250,7 +294,9 @@ list                :   LI_S body_content LI_E                      {
                                                                         ;
                                                                     }
 
-
+                    /*******************************************
+                                 Dictionary Tags
+                    *******************************************/
 body_content        :   body_content DL_S dict_content DL_E         {
                                                                         ;
                                                                     }
@@ -268,7 +314,9 @@ term                :   DT_S body_content DT_E DD_S body_content DD_E   {
                                                                         }
 
 
-
+                    /*******************************************
+                                    Text / Data
+                    *******************************************/
 
 body_content        :   data                                {
                                                                 //cout<<"\tData: "<<$1<<endl;

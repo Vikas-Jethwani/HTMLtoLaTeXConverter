@@ -13,9 +13,19 @@
 %x IMG_ATTR
 %x TAB_ATTR
 
-link        [a-zA-Z0-9#\.:/]
-
+basic           [a-zA-Z0-9]
+link            [a-zA-Z0-9#\.:/-]*
+doctype         <!DOCTYPE[^>[]*(\[[^]]*\])?>
+punc            [_@$%=<>!-#&;<>/{}'`~]
+special_punc    [\\\.\:\^\*\+\(\)\[\]\"]
+whitespace      [ \t\n]
+comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
 %%
+
+{doctype}               {;}
+{comment}               {
+                            cout<<'\t'<<yytext<<" - "<<"Comments\n";
+                        }
 "<html>"                {
                             cout<<"HTML Tag\n";
                             return HTML_S;
@@ -52,13 +62,13 @@ link        [a-zA-Z0-9#\.:/]
                             return BODY_E;
                         }
 
-"<a "|"<a"                   {
+"<a "|"<a"              {
                             cout<<"A Tag\n";
                             BEGIN(A_ATTR);
                             return A_S;
                         }
 
-<A_ATTR>"href=\""[a-zA-Z0-9#\.:/]*"\""      {
+<A_ATTR>"href=\""{link}"\""      {
                                                 int n = strlen(yytext);
                                                 string str = string(yytext).substr(5,n);
                                                 n = str.length();
@@ -132,6 +142,53 @@ link        [a-zA-Z0-9#\.:/]
 "</font>"               {
                             cout<<"FONT_E Tag\n";
                             return FONT_E;
+                        }
+
+"<img "|"<img"        {
+                            cout<<"IMG Tag\n";
+                            BEGIN(IMG_ATTR);
+                            return IMG_S;
+                        }
+
+<IMG_ATTR>"src=\""[a-zA-Z0-9#\.:/]*"\"" {
+                                            int n = strlen(yytext);
+                                            string str = "\"" + string(yytext).substr(5,n-1) + "\"";
+                                            n = str.length();
+                                            yylval.s = new char [n+1];
+                                            strcpy(yylval.s, str.c_str());
+                                            yylval.s[n] = '\0';
+                                            cout<<"img-attr, src : "<<yylval.s<<endl;
+                                            return IMG_SRC;
+                                        }
+                                        
+<IMG_ATTR>"width=\""[0-9]+"\""  {
+                                    int n = strlen(yytext);
+                                    string str = "\"" + string(yytext).substr(7,n-1) + "\"";
+                                    n = str.length();
+                                    yylval.s = new char [n+1];
+                                    strcpy(yylval.s, str.c_str());
+                                    yylval.s[n] = '\0';
+                                    cout<<"img-attr, width : "<<yylval.s<<endl;
+                                    return IMG_WIDTH;
+                                }
+
+<IMG_ATTR>"height=\""[0-9]+"\"" {
+                                    int n = strlen(yytext);
+                                    string str = "\"" + string(yytext).substr(8,n-1) + "\"";
+                                    n = str.length();
+                                    yylval.s = new char [n+1];
+                                    strcpy(yylval.s, str.c_str());
+                                    yylval.s[n] = '\0';
+                                    cout<<"img-attr, height : "<<yylval.s<<endl;
+                                    return IMG_HEIGHT;
+                                }
+                                             
+<IMG_ATTR>" "           ;
+                                                                                              
+<IMG_ATTR>(">"|"/>")    {
+                            BEGIN(INITIAL);
+                            cout<<"IMG_E Tag\n";
+                            return IMG_E;
                         }
 
 
@@ -420,11 +477,17 @@ link        [a-zA-Z0-9#\.:/]
                             cout<<"DD_E Tag\n";
                             return DD_E;
                         }
+
+"<br>"|"<br />"|"<br/>"                  {
+                            cout<<"BR Tag\n";
+                            return BR_S;
+                        }
+
 [ \t\n]+                {
                             cout<<"Trimmed"<<endl;
                         }
                       
-([a-zA-Z0-9\.,'; \t?=]+[\n]*)+         {
+([a-zA-Z0-9\.,'; \t\?=]+[\n]*)+         {
                             int n = strlen(yytext);
                             yylval.s = new char [n+1];
                             strcpy(yylval.s, yytext);
