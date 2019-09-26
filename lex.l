@@ -3,6 +3,7 @@
     #include <cstring>
     #include "yacc.tab.h"
     using namespace std;
+    void find_Attr(int);
     void yyerror(const char *);
 %}
 %option yylineno
@@ -14,12 +15,14 @@
 %x TAB_ATTR
 
 basic           [a-zA-Z0-9]
-link            [a-zA-Z0-9#\.:/-]*
+all             ({basic}|{punc}|{special_punc})*
+link2           [a-zA-Z0-9#\.:/-]*
 doctype         <!DOCTYPE[^>[]*(\[[^]]*\])?>
 punc            [_@$%=<>!-#&;<>/{}'`~]
-special_punc    [\\\.\:\^\*\+\(\)\[\]\"]
+special_punc    [\\\.\:\^\*\+\(\)\[\]]
 whitespace      [ \t\n]
-comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
+comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|"\"")*?-->
+
 %%
 
 {doctype}               {;}
@@ -68,35 +71,22 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
                             return A_S;
                         }
 
-<A_ATTR>"href=\""{link}"\""      {
-                                                int n = strlen(yytext);
-                                                string str = string(yytext).substr(5,n);
-                                                n = str.length();
-                                                yylval.s = new char [n+1];
-                                                strcpy(yylval.s, str.c_str());
-                                                yylval.s[n] = '\0';
+<A_ATTR>"href="['\"]{all}['\"]             {
+                                                find_Attr(6);
                                                 cout<<"attr, href : "<<yylval.s<<endl;
                                                 return A_HREF;
-                                             }
+                                            }
 
-<A_ATTR>"name=\""[a-zA-Z0-9#]*"\""          {
-                                                int n = strlen(yytext);
-                                                string str = string(yytext).substr(5,n);
-                                                n = str.length();
-                                                yylval.s = new char [n+1];
-                                                strcpy(yylval.s, str.c_str());
-                                                yylval.s[n] = '\0';
+
+<A_ATTR>"name="['\"]{all}['\"]      {
+                                                find_Attr(6);
                                                 cout<<"attr, name : "<<yylval.s<<endl;
                                                 return A_NAME;
-                                             }
+                                            }
+
                                              
-<A_ATTR>"title=\""[a-zA-Z0-9#\.:/]*"\""      {
-                                                int n = strlen(yytext);
-                                                string str = string(yytext).substr(6,n);
-                                                n = str.length();
-                                                yylval.s = new char [n+1];
-                                                strcpy(yylval.s, str.c_str());
-                                                yylval.s[n] = '\0';
+<A_ATTR>"title="['\"]{all}['\"] {
+                                                find_Attr(7);
                                                 cout<<"attr, title : "<<yylval.s<<endl;
                                                 return A_TITLE;
                                              }
@@ -120,13 +110,8 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
                             return FONT_S;
                         }
 
-<FONT_ATTR>"size=\""[0-9]+"\""      {
-                                                int n = strlen(yytext);
-                                                string str = string(yytext).substr(5,n);
-                                                n = str.length();
-                                                yylval.s = new char [n+1];
-                                                strcpy(yylval.s, str.c_str());
-                                                yylval.s[n] = '\0';
+<FONT_ATTR>"size="['\"][0-9]+['\"]      {
+                                                find_Attr(6);
                                                 cout<<"font-attr, size : "<<yylval.s<<endl;
                                                 return FONT_SIZE;
                                              }
@@ -150,35 +135,20 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
                             return IMG_S;
                         }
 
-<IMG_ATTR>"src=\""[a-zA-Z0-9#\.:/]*"\"" {
-                                            int n = strlen(yytext);
-                                            string str = "\"" + string(yytext).substr(5,n-1) + "\"";
-                                            n = str.length();
-                                            yylval.s = new char [n+1];
-                                            strcpy(yylval.s, str.c_str());
-                                            yylval.s[n] = '\0';
+<IMG_ATTR>"src="['\"]{all}['\"] {
+                                            find_Attr(5);
                                             cout<<"img-attr, src : "<<yylval.s<<endl;
                                             return IMG_SRC;
                                         }
                                         
-<IMG_ATTR>"width=\""[0-9]+"\""  {
-                                    int n = strlen(yytext);
-                                    string str = "\"" + string(yytext).substr(7,n-1) + "\"";
-                                    n = str.length();
-                                    yylval.s = new char [n+1];
-                                    strcpy(yylval.s, str.c_str());
-                                    yylval.s[n] = '\0';
+<IMG_ATTR>"width="['\"][0-9]+['\"]  {
+                                    find_Attr(7);
                                     cout<<"img-attr, width : "<<yylval.s<<endl;
                                     return IMG_WIDTH;
                                 }
 
-<IMG_ATTR>"height=\""[0-9]+"\"" {
-                                    int n = strlen(yytext);
-                                    string str = "\"" + string(yytext).substr(8,n-1) + "\"";
-                                    n = str.length();
-                                    yylval.s = new char [n+1];
-                                    strcpy(yylval.s, str.c_str());
-                                    yylval.s[n] = '\0';
+<IMG_ATTR>"height="['\"][0-9]+['\"] {
+                                    find_Attr(8);
                                     cout<<"img-attr, height : "<<yylval.s<<endl;
                                     return IMG_HEIGHT;
                                 }
@@ -198,13 +168,8 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
                             return TABLE_S;
                         }
 
-<TAB_ATTR>"border=\""[0-9]+"\""     {
-                                        int n = strlen(yytext);
-                                        string str = string(yytext).substr(7,n);
-                                        n = str.length();
-                                        yylval.s = new char [n+1];
-                                        strcpy(yylval.s, str.c_str());
-                                        yylval.s[n] = '\0';
+<TAB_ATTR>"border="['\"][0-9]+['\"]     {
+                                        find_Attr(8);
                                         cout<<"table-attr, border : "<<yylval.s<<endl;
                                         return TAB_BORDER;
                                     }
@@ -496,6 +461,16 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc})*?-->
                         }
 .                       ;
 %%
+
+void find_Attr(int st)
+{
+    int n = strlen(yytext);
+    string str = (string(yytext).substr(st,n-st-1));
+    n = str.length();
+    yylval.s = new char [n+1];
+    strcpy(yylval.s, str.c_str());
+    yylval.s[n] = '\0';
+}
 
 void yyerror(const char *str) {
     cerr<<"Line No: "<<yylineno<<"\t Error: "<<str<<endl;

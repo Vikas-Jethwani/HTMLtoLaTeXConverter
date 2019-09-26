@@ -57,7 +57,7 @@
                     *******************************************/
 begin               :   Document
 
-Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya:\t%s\n", $2); }
+Document            :   HTML_S html HTML_E                  { printf("Grammar mein jod diya\n"); }
                     |                                       {;}
 
 html                :   head body                           {

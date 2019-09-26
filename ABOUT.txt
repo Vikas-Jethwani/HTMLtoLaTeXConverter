@@ -7,10 +7,10 @@ Steps to run:
 (sh run.sh            for linux)
 
 About : 
-1. Handled IMG tag
-2. Handled BR tag
-3. Handled Comment
-4. Handled doctype
+1. Handled Doctype and Comments gracefully
+2. Function for extracting attributes
 
 ==== TODO List for Future Me ==== :
-1. comment Grammar (check if required)
+1. New Regex for Text
+2. Greek Symbols
+3. Figure and Figcaption Tag
