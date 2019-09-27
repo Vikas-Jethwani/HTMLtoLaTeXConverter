@@ -7,10 +7,10 @@ Steps to run:
 (sh run.sh            for linux)
 
 About : 
-1. Handled Doctype and Comments gracefully
-2. Function for extracting attributes
+1. Started AST & Almost done
+2. Grammar almost completed
+3. Figure and Figcaption done
 
 ==== TODO List for Future Me ==== :
-1. New Regex for Text
+1. "-" in text Regex
 2. Greek Symbols
-3. Figure and Figcaption Tag

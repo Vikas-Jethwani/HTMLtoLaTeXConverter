@@ -16,18 +16,19 @@
 
 basic           [a-zA-Z0-9]
 all             ({basic}|{punc}|{special_punc})*
-link2           [a-zA-Z0-9#\.:/-]*
 doctype         <!DOCTYPE[^>[]*(\[[^]]*\])?>
 punc            [_@$%=<>!-#&;<>/{}'`~]
 special_punc    [\\\.\:\^\*\+\(\)\[\]]
 whitespace      [ \t\n]
 comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|"\"")*?-->
+greek           &({basic})+;
 
 %%
 
 {doctype}               {;}
 {comment}               {
-                            cout<<'\t'<<yytext<<" - "<<"Comments\n";
+                            cout<<"COMMENT\n";
+                            //cout<<'\t'<<yytext<<" - "<<"Comments\n";
                         }
 "<html>"                {
                             cout<<"HTML Tag\n";
@@ -222,8 +223,25 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|"\"")*?-->
 "</td>"                 {
                             cout<<"TD_E Tag\n";
                             return TD_E;
-                        }               
+                        }
+                        
+"<figure>"              {
+                            cout<<"FIG Tag\n";
+                            return FIG_S;
+                        }
+"</figure>"             {
+                            cout<<"FIG_E Tag\n";
+                            return FIG_E;
+                        }
 
+"<figcaption>"          {
+                            cout<<"FIGC Tag\n";
+                            return FIGC_S;
+                        }
+"</figcaption>"         {
+                            cout<<"FIGC_E Tag\n";
+                            return FIGC_E;
+                        }
                             
 "<p>"                   {
                             cout<<"P Tag\n";
@@ -451,14 +469,21 @@ comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|"\"")*?-->
 [ \t\n]+                {
                             cout<<"Trimmed"<<endl;
                         }
-                      
-([a-zA-Z0-9\.,'; \t\?=]+[\n]*)+         {
+{greek}                 {
+                            cout<<"GREEK\n";
                             int n = strlen(yytext);
                             yylval.s = new char [n+1];
                             strcpy(yylval.s, yytext);
                             yylval.s[n] = '\0';
-                            return DATA;
+                            return GREEK;
                         }
+([a-zA-Z0-9\.,'; \t\?=]+[\n]*)+         {
+                                            int n = strlen(yytext);
+                                            yylval.s = new char [n+1];
+                                            strcpy(yylval.s, yytext);
+                                            yylval.s[n] = '\0';
+                                            return DATA;
+                                        }
 .                       ;
 %%
 
