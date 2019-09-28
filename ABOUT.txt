@@ -7,10 +7,9 @@ Steps to run:
 (sh run.sh            for linux)
 
 About : 
-1. Started AST & Almost done
-2. Grammar almost completed
-3. Figure and Figcaption done
+1. Mapping Almost Done
+2. Greek Symbols added
+3. AST tree working perfectly(showing correct relation) 
 
 ==== TODO List for Future Me ==== :
 1. "-" in text Regex
-2. Greek Symbols

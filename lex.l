@@ -17,10 +17,11 @@
 basic           [a-zA-Z0-9]
 all             ({basic}|{punc}|{special_punc})*
 doctype         <!DOCTYPE[^>[]*(\[[^]]*\])?>
-punc            [_@$%=<>!-#&;<>/{}'`~]
-special_punc    [\\\.\:\^\*\+\(\)\[\]]
+punc            [_@$%=!-#;/{}'`~,]
+special_punc    [\\\.\:\^\*\+\(\)\[\]\?]
 whitespace      [ \t\n]
-comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|"\"")*?-->
+comment         <!--({basic}|{whitespace}|{punc}|{special_punc}|[\"<>&])*?-->
+words           (({punc}|{special_punc}|{basic}|[ \t])+[\n]*)+
 greek           &({basic})+;
 
 %%
@@ -28,7 +29,8 @@ greek           &({basic})+;
 {doctype}               {;}
 {comment}               {
                             cout<<"COMMENT\n";
-                            //cout<<'\t'<<yytext<<" - "<<"Comments\n";
+                            yylval.s = strdup(yytext);
+                            return COMMENT_S;
                         }
 "<html>"                {
                             cout<<"HTML Tag\n";
@@ -223,8 +225,8 @@ greek           &({basic})+;
 "</td>"                 {
                             cout<<"TD_E Tag\n";
                             return TD_E;
-                        }
-                        
+                        }               
+
 "<figure>"              {
                             cout<<"FIG Tag\n";
                             return FIG_S;
@@ -471,19 +473,14 @@ greek           &({basic})+;
                         }
 {greek}                 {
                             cout<<"GREEK\n";
-                            int n = strlen(yytext);
-                            yylval.s = new char [n+1];
-                            strcpy(yylval.s, yytext);
-                            yylval.s[n] = '\0';
-                            return GREEK;
+                            yylval.s = strdup(yytext);
+                            return GREEK_S;
                         }
-([a-zA-Z0-9\.,'; \t\?=]+[\n]*)+         {
-                                            int n = strlen(yytext);
-                                            yylval.s = new char [n+1];
-                                            strcpy(yylval.s, yytext);
-                                            yylval.s[n] = '\0';
-                                            return DATA;
-                                        }
+{words}                 {
+                            cout<<yytext<<endl;
+                            yylval.s = strdup(yytext);
+                            return DATA;
+                        }
 .                       ;
 %%
 
