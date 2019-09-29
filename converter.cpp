@@ -3,6 +3,9 @@
 using namespace std;
 
 
+                                /*******************************************
+                                                Global Data
+                                *******************************************/
 extern int yyparse();
 extern FILE *yyin;
 string conv;
@@ -11,10 +14,18 @@ int num_col;
 int curr_col;
 
 
+                                /*******************************************
+                                                Only for Debugging
+                                *******************************************/
 #define deb(x) cerr<<#x<<" : "<<x<<endl;
 #define deb2(x, y) cerr<<#x<<" : "<<x<<" | "<<#y<<" : "<<y<<endl;
 #define debvec(vec) { cerr<<#vec<<" : "<<'\n'; for(int ii=0; ii<vec.size(); ii++) cerr<<#vec<<"["<<ii+1<<"]   :   "<<vec[ii].first<<" : "<<vec[ii].second<<'\n'; cout<<'\n'; }
 
+
+
+                                /*******************************************
+                                       Header File Function Definitions
+                                *******************************************/
 extern ast_node* create_node(NODE_TYPE type, string info)
 {
     ast_node *temp = new ast_node;
@@ -31,6 +42,19 @@ extern ast_node* create_node(NODE_TYPE type)
 }
 
 
+extern void add_attribute_value(ast_node* par, string attr, string val)
+{
+    par->attributes.push_back( {attr, val} );
+}
+
+extern void add_attributes(ast_node* par, ast_node* kid)
+{
+    if(kid == NULL)
+        return;
+    for(int i=0; i<kid->attributes.size(); i++)
+        par->attributes.push_back(kid->attributes[i]);
+}
+
 extern void add_child(ast_node* par, ast_node* kid)
 {
     if(kid == NULL)
@@ -38,7 +62,6 @@ extern void add_child(ast_node* par, ast_node* kid)
     par->children.push_back(kid);
     //cerr<<"\n*********Debugging, Added "<<kid->tag<<" to "<<par->tag<<endl;
 }
-
 
 extern void add_child_safely(ast_node* par, ast_node* kid)
 {
@@ -58,33 +81,7 @@ extern void add_child_safely(ast_node* par, ast_node* kid)
     //cerr<<"\n*********Debugging, Added "<<kid->tag<<" to "<<par->tag<<endl;
 }
 
-
-extern void add_attributes(ast_node* par, ast_node* kid)
-{
-    if(kid == NULL)
-        return;
-    for(int i=0; i<kid->attributes.size(); i++)
-        par->attributes.push_back(kid->attributes[i]);
-}
-
-
-extern void add_attribute_value(ast_node* par, string attr, string val)
-{
-    par->attributes.push_back( {attr, val} );
-}
-
-
-extern void delete_tree(ast_node* root)
-{
-    for(int i=0; i<root->children.size(); i++)
-    {
-        delete_tree(root->children[i]);   
-    }
-    
-    delete root;
-}
-
-
+// For debugging purposes ...
 extern void traverse(ast_node* root)
 {
     cerr<<"----------------------------------------------------\n";
@@ -102,16 +99,21 @@ extern void traverse(ast_node* root)
     cerr<<"------------------\n";
 }
 
+extern void delete_tree(ast_node* root)
+{
+    for(int i=0; i<root->children.size(); i++)
+    {
+        delete_tree(root->children[i]);   
+    }
+    
+    delete root;
+}
 
 
 
-
-
-
-
-
-
-
+                                /*******************************************
+                                              Mapping
+                                *******************************************/
 
 map <NODE_TYPE, string> start = {
         { HTML      , "" },
@@ -125,7 +127,7 @@ map <NODE_TYPE, string> start = {
         { H2        , "\n\\subsection*{" },
         { H3        , "\n\\subsubsection*{" },
         { H4        , "\n\\textbf{" },
-        { H5        , "\n{\\small\\textbf{" },  // h4 h5 h6 problem
+        { H5        , "\n{\\small\\textbf{" },
         { H6        , "\n{\\scriptsize\\textbf{" },
         { U         , "\\underline{" },
         { BOLD      , "\n\\textbf{" },
@@ -134,15 +136,16 @@ map <NODE_TYPE, string> start = {
         { TT        , "\\texttt{" },
         { SUB       , "_{" },
         { SUP       , "^{" },
+        { HR        , "\n\\hrulefill\n" },
         { BR        , "\\hfill \\break\n" },
         { FIG       , "\n\\begin{figure}\n" },
         { FIGC      , "\\caption{" },
         { T_CAPTION , "\\caption{" },
-        { UL        , "\\begin{itemize}" },
-        { OL        , "\\begin{enumerate}" },
+        { UL        , "\n\\begin{itemize}" },
+        { OL        , "\n\\begin{enumerate}" },
         { LI        , "\\item " },
-        { DL        , "\\begin{description}[style=unboxed, labelwidth=\\linewidth, font=\\sffamily\\itshape\\bfseries, listparindent=0pt, before=\\sffamily]" },
-        { DT        , "\\item[" },
+        { DL        , "\n\\begin{description}[style=unboxed, labelwidth=\\linewidth, font=\\sffamily\\itshape\\bfseries, listparindent=0pt, before=\\sffamily]" },
+        { DT        , "\n\\item[" },
         { DD        , "]\n" },
     };
     
@@ -151,7 +154,7 @@ map <NODE_TYPE, string> finish = {
         { HEAD      , "" },
         { TITLE     , "}\n\\author{Vikas Jethwani}\n" },
         { BODY      , "\n\n\\end{document}\n" },
-        { P         , "" },
+        { P         , "\n" },
         { CENTER    , "\\end{center}\n" },
         { H1        , "}\n" },
         { H2        , "}\n" },
@@ -159,7 +162,7 @@ map <NODE_TYPE, string> finish = {
         { H4        , "}\n" },
         { H5        , "}}\n" },
         { H6        , "}}\n" },
-        { DIV       , "\n\n" },
+        { DIV       , "\n" },
         { U         , "}" },
         { BOLD      , "}" },
         { I         , "}" },
@@ -167,6 +170,7 @@ map <NODE_TYPE, string> finish = {
         { TT        , "}" },
         { SUB       , "}" },
         { SUP       , "}" },
+        { HR        , "" },
         { BR        , "" },
         { FIG       , "\n\\end{figure}\n" },
         { FIGC      , "}" },
@@ -180,6 +184,9 @@ map <NODE_TYPE, string> finish = {
     
 };
 
+                                /*******************************************
+                                               New Helper Functions
+                                *******************************************/
 
 void conv_greek(ast_node* root)
 {
@@ -198,7 +205,6 @@ void conv_greek(ast_node* root)
     conv += val;
 
 }
-
 
 void conv_a(ast_node* root)
 {
@@ -232,7 +238,6 @@ void conv_font(ast_node* root, int size=3)
         
     conv += "}";
 }
-
 
 void conv_img(ast_node* root)
 {
@@ -269,10 +274,8 @@ void conv_img(ast_node* root)
         conv += "[height=" + h + "px, width=" + w + "px]";    
     }
     
-    
     conv += "{" + src + "}\n";
 }
-
 
 void conv_table(ast_node* root)
 {
@@ -292,7 +295,7 @@ void conv_table(ast_node* root)
         caption = true;
     }
     
-    
+
     conv += "\n\\begin{table}[h!]\n\\centering\n";
     
     if(caption)
@@ -337,7 +340,6 @@ void findAndReplaceAll(string & data, string toSearch, string replaceStr)
     }
 }
 
-
 void fix_latex_chars(string & data)
 {
     vector< pair< string, string > > mapping_latex = {
@@ -350,7 +352,8 @@ void fix_latex_chars(string & data)
                                                         {"$", "\\$\\ "},
                                                         {"%", "\\%"},
                                                         {"~", "\\sim"},
-                                                        {"#", "\\#"}
+                                                        {"#", "\\#"},
+                                                        {"&", "\\&"}
                                                      };
     for(int i=0; i<mapping_latex.size(); i++)
     {
@@ -367,11 +370,6 @@ extern void create_LaTeX(ast_node* root)
     {
         fix_latex_chars(root->text);
         conv += root->text;
-        return;
-    }
-    else if(root->tag == COMMENT)
-    {
-        conv += "\n\\begin{comment}\n" + (root->text).substr(4, root->text.size()-7) + "\n\\end{comment}\n";
         return;
     }
     else if(root->tag == GREEK)
@@ -437,14 +435,12 @@ extern void create_LaTeX(ast_node* root)
     }
     
     
-    
     conv += start[root->tag];
     
     for(int i=0; i<root->children.size(); i++)
         create_LaTeX(root->children[i]);
 
-    conv += finish[root->tag];
-       
+    conv += finish[root->tag];   
 }
 
 
@@ -462,10 +458,8 @@ int main(int argc, char *argv[]) {
     
     yyparse();
     
-    cout<<endl<<endl<<conv;
-    
     ofstream fout;
-    fout.open("Vikas.tex", ios::out | ios::trunc );
+    fout.open(argv[2], ios::out | ios::trunc );
     fout << conv ;
     return 0;
 }

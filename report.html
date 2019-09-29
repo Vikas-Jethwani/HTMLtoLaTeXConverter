@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HTMLtoLaTeX  Converter</title>
+</head>
+<body>
+	<center><h2>COP 701 - Assignment 1</h2></center>
+	<h3>LEX</h3>
+	<p>Lex is a program designed to generate tokenizers, which recognize lexical patterns in text. Lex generates tokens for use as input to other programs such as parsers.</p>
+	<p>I have used <strong>FLEX</strong>(Fast Lexical Analyzer Generator) in my project to generate tokens. Flex is more flexible and compatible than Lex.<br> To install flex in linux, run the command <br> <em>sudo apt-get install flex</em></p>
+	<b><u>Details:</u></b>
+	<ul>
+		<li>Defined Regex to extract tags, data & special characters efficiently.</li>
+		<li>Defined New States to extract attributes systematically and pass them onto yacc file.</li>
+		<li>Handled the case insensitive nature of HTML.</li>
+		<li>Whenever Syntax Error is encountered: Line-number is also displayed.</li>
+	</ul> 
+	<br>
+
+	<h3>YACC</h3>
+	<p>Yacc is an LALR(1) parser generator. Yacc is a program that takes as input a specification of a syntax, and produces as output a procedure for recognizing that language. Historically, it is also called compiler-compilers.</p>
+	<p>I have used <strong>BISON</strong> in my project to parse the HTML using the CFG(<u>Context free Grammar</u>) that I have defined/written. Bison has several extensions over Yacc.<br> To install bison in linux, run the command <br> <em>sudo apt-get install bison</em></p>
+	<b><u>Details:</u></b>
+	<ul>
+		<li>Defined <b><em>Conflict FREE</em></b> Context Free Grammar to parse the HTML source code.</li>
+		<li>Wrote Coherant productions to also resemble the AST of HTML.</li>
+		<li>Handled pointers carefully to avoid memory leak.</li>
+	</ul> 
+	<br>
+
+	<center><h3>Abstract Syntax Tree</h3></center>
+	<p>It is a tree representation of the abstract syntactic structure of source code written in a programming language. Each node of the tree denotes a construct occurring in the source code. The syntax is "abstract" in the sense that it does not represent every detail appearing in the real syntax, but rather just the structural or content-related details.</p>
+	<br><br>
+	<i><font size='5'>AST_NODE</font></i>
+	<ol>
+		<li>variable of NODE_TYPE : To store which type of tag this node represents. NODE_TYPE is a custom type ENUM to save space and order types of tags efficiently.</li>
+		<li>variable of type string  : To store the data of DATA NODES and other basic tags directly.</li>
+		<li>vector of pair of string : To store attribute and their values.</li>
+		<li>vector of AST_NODE pointers : To store children of AST nodes. Helps establish Parent-Child Relationship. </li>
+	</ol>
+
+	<center><strong><font size='4'>AST Functions</font></strong></center>
+	<ul>
+		<li>Create Node - To create a Node with the given Tag Type.</li>
+		<li>Add Attribute - From the children, add the attribute to current node.</li>
+		<li>Add Child - Given two nodes(par, kid), Add the kid to the parent.</li>
+		<li>Delete Tree - To free up dynamically assigned memory.</li>
+		<li>Mapper - Map type Data structure to map tags of HTML to commands of LaTeX</li>
+		<li>Fix LaTeX Chars - To find and fix the specials latex symbols that will not be displayed directly.</li>
+		<li><b>Create LaTeX</b> - Recursively handles current node and visits all children of that node. This function traverses the AST in a Depth First manner.</li>
+	</ul>
+
+	<br><br>
+
+	<h4>Programming Language : </h4>
+	<p>I have used C++ in this project.</p>
+	
+	<br>
+	<h4>Extra Stuff : </h4>
+	<ul>
+	    <li>H5, H6 tags</li>
+	    <li>HR(horizontal rule) tag</li>
+	    <li>Extra greek symbols.</li>
+	</ul>
+
+	<br>
+	<h5>Submitted By</h5>
+	
+	<dl>
+		<dt>Name</dt><dd>Vikas Jethwani</dd>
+		<dt>Entry Number</dt><dd>2019MCS2573</dd>
+	</dl>
+
+	<br>
+	<small>I have written this Report in HTML and Converted to LaTeX(and then PDF) using this project itself.</small>
+
+	
+</body>
+</html>
